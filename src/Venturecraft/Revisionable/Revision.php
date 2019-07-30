@@ -75,7 +75,7 @@ class Revision extends Eloquent
      */
     private function formatFieldName($key)
     {
-        $related_model = $this->revisionable_type;
+        $related_model = $this->getActualClassNameForMorph($this->revisionable_type);
         $related_model = new $related_model;
         $revisionFormattedFieldNames = $related_model->getRevisionFormattedFieldNames();
 
@@ -140,7 +140,7 @@ class Revision extends Eloquent
                     if (!method_exists($main_model, $related_model)) {
                         $related_model = camel_case($related_model); // for cases like published_status_id
                         if (!method_exists($main_model, $related_model)) {
-                            throw new \Exception('Relation ' . $related_model . ' does not exist for ' . $main_model);
+                            throw new \Exception('Relation ' . $related_model . ' does not exist for ' . get_class($main_model));
                         }
                     }
                     $related_class = $main_model->$related_model()->getRelated();
@@ -174,7 +174,6 @@ class Revision extends Eloquent
             } catch (\Exception $e) {
                 // Just a fail-safe, in the case the data setup isn't as expected
                 // Nothing to do here.
-                Log::info('Revisionable: ' . $e);
             }
 
             // if there was an issue
@@ -280,7 +279,7 @@ class Revision extends Eloquent
      */
     public function format($key, $value)
     {
-        $related_model = $this->revisionable_type;
+        $related_model = $this->getActualClassNameForMorph($this->revisionable_type);
         $related_model = new $related_model;
         $revisionFormattedFields = $related_model->getRevisionFormattedFields();
 
